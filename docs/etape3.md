@@ -6,6 +6,7 @@ Le but est de faire en sorte que seul le `reverse proxy` soit atteignable depuis
 
 # Configuration
 
+TODO serverName doit match l'URL
 ## Dockerfile
 
 Pour cette étape, nous avons besoin d'un nouveau serveur `apache` qui sera utilisé comme `reverse proxy`.
@@ -32,7 +33,7 @@ ProxyPassReverse "/che/min/" "http://ip_de_redirection:port_de_redirection/"
 `ProxyPass` permet de rediriger les requêtes effectués sur `/che/min/` pour les rediriger vers le serveur spécifié.
 `ProxyPassReverse` permet d'effectuer la même chose mais dans le sens inverse (serveur -> extérieur).
 
-Les règles étant analysées séquentiellement par le `proxy`, leur ordre est important. Il faut donc commencer par les règles les plus spécifiques. C'est pour cela que la redirection vers le serveur dynamique sur `/api/money/` vient avant celle du serveur statique `/`.
+Les règles étant analysées séquentiellement par le `proxy`, leur ordre est important. Il faut donc commencer par les règles les plus spécifiques. C'est pour cela que la redirection vers le serveur dynamique sur `/api/prize/` vient avant celle du serveur statique `/`.
 
 ## Problèmes de la configuration
 
@@ -53,7 +54,7 @@ Marche à suivre :
     - `-p` : Le port `80` du serveur sera mappé sur le port local `8080`
     - `-d` : le container sera lancé en arrière-plan
 3. Accéder à `localhost:8080` pour accéder au contenu statique
-4. Accéder à `localhost:8080/api/money/` pour accéder au contenu dynamique
+4. Accéder à `localhost:8080/api/prize/` pour accéder au contenu dynamique
 
 Il est possible de [modifier le fichier](https://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/) `host` pour pouvoir accéder au serveur `proxy` via un nom d'hôte plutôt que son adresse IP. Dans notre cas, nous avons effectuer cette manipulation sous Windows et avons ajouté la ligne suivante :
 
