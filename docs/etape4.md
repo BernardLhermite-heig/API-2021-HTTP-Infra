@@ -2,7 +2,7 @@
 
 L'objectif de cette étape est de modifier le site web statique pour que ce dernier communique avec le serveur dynamique de l'étape 2 pour obtenir des informations et mettent à jour le contenu de sa page.
 
-La communication est effectuée grâce à une requête Ajax à l'aide de JQuery.
+La communication est effectuée grâce à une requête AJAX à l'aide de JQuery.
 
 # Configuration
 
@@ -15,11 +15,11 @@ L'image est décrite dans le fichier [Dockerfile](../docker-images/apache-ajax/D
 RUN apt-get update && apt-get install -y vim
 ```
 
-## Mise en place de la requête Ajax
+## Mise en place de la requête AJAX
 
 Un fichier [prize.js](../docker-images/apache-ajax/content/assets/js/prize.js) a été créé au même emplacement que les autres scripts utilisés par la page.
 
-Ce dernier contient une fonction `loadPrize` qui se charge d'effectuer la requête Ajax sur l'URL `/api/prize/` et de mettre à jour le contenu de l'élément DOM possédant l'id `prize` avec le résultat de la requête.
+Ce dernier contient une fonction `loadPrize` qui se charge d'effectuer la requête AJAX sur l'URL `/api/prize/` et de mettre à jour le contenu de l'élément DOM possédant l'id `prize` avec le résultat de la requête.
 
 La ligne `setInterval(loadPrize, 5000);` nous permet d'exécuter ladite fonction toutes les cinq secondes.
 
@@ -39,7 +39,7 @@ et le fichier javascript précédemment créé est ajouté à la suite des scrip
 
 # Nécessité du reverse proxy
 
-Pour des raisons de sécurités, les requêtes Ajax doivent par défaut être émise depuis le même domaine pour que ces dernières fonctionnent. Grâce au `reverse proxy`, cette condition est respectée car ce dernier se charge de rediriger les requêtes et change ainsi leur domaine d'origine.
+Pour des raisons de sécurités, les requêtes AJAX doivent par défaut être émise depuis le même domaine pour que ces dernières fonctionnent. Grâce au `reverse proxy`, cette condition est respectée car ce dernier se charge de rediriger les requêtes et change ainsi leur domaine d'origine.
 
 # Utilisation
 
