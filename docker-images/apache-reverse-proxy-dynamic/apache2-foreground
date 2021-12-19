@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+# Vérification que les variables soient définies
 if [ -z "$STATIC_APP" ] || [ -z "$DYNAMIC_APP" ]; then 
     echo "Missing variables STATIC_APP or DYNAMIC_APP";
     echo "Both need to be set with flag -e"
