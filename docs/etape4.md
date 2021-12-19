@@ -51,8 +51,8 @@ Marche à suivre :
 
 1. Construire l'image en exécutant le script [build-image.sh](../docker-images/apache-ajax/build-image.sh)
 2. Exécuter le serveur `docker run -d api/apache-ajax`
-3. Exécuter le serveur de l'étape 2 `docker run -d api/express-dynamic`
-4. Exécuter le serveur de l'étape 3 `docker run -d -p 8080:80 api/reverse-proxy`
+3. Exécuter le serveur de l'étape 2 `docker run -d api/node-express`
+4. Exécuter le serveur de l'étape 3 `docker run -d -p 8080:80 api/apache-reverse-proxy`
     - `-p` : Le port `80` du serveur sera mappé sur le port local `8080`
     - `-d` : le container sera lancé en arrière-plan
 5. Accéder à `api.labo.ch:8080` et attendre 5 secondes que la première requête soit effectuée
