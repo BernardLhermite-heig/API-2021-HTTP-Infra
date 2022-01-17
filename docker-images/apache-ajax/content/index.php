@@ -110,6 +110,7 @@
                             <h3 class="header-sub-title wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.2s">
                                 Bienvenue à</h3>
                             <h2 class="header-title wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.5s">Dreamland</h2>
+                            <h3 class="header-sub-title wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.2s">Servi par <?php print gethostname(); ?></h3>
                             <p id="prize" class="text wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.8s">WOOOOOOOOOOOOOOOOOOWWWWW JE SUIS ANIMÉ</p>
                             <a href="#" class="main-btn wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="1.1s">Get Started</a>
                         </div> <!-- header hero content -->
