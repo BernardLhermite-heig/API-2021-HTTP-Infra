@@ -1,8 +1,14 @@
 var Chance = require('chance');
 var chance = new Chance();
+var os = require("os");
 
 var express = require('express');
 var app = express();
+
+app.use(function (req, res, next) {
+	res.header("hostname", os.hostname());
+	next();
+});
 
 app.get('/', function(req, res) {
 	res.send(getPrize());
