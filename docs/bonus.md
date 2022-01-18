@@ -68,9 +68,9 @@ services:
 
 ## Server HTTP dynamique
 
-La configuration de ce service nécessite, en plus d'activer `traefik` et de définir l'`entrypoint`, de spécifier le port sur lequel rediriger la requête ainsi que son url. 
+La configuration de ce service nécessite, en plus d'activer `Traefik` et de définir l'`entrypoint`, de spécifier le port sur lequel rediriger la requête ainsi que son URL. 
 
-Notre serveur dynamique s'attend à recevoir des requêtes sur le port `3000` à l'url racine (`/`). Or, nous allons y accéder depuis une url différente (`/api/prize`). Il faut donc rajouter un `middleware` avant la redirection se chargeant de réécrire l'url correctement.
+Notre serveur dynamique s'attend à recevoir des requêtes sur le port `3000` à l'URL racine (`/`). Or, nous allons y accéder depuis une URL différente (`/api/prize`). Il faut donc rajouter un `middleware` avant la redirection se chargeant de réécrire l'URL correctement.
 
 ``` yaml
 services:
@@ -112,7 +112,7 @@ volumes:
   portainer_data:
 ```
 
-Ensuite, il suffit de configurer `Traefik` de la même manière que précédemment. Pour pouvoir y accéder depuis une url particulière (`/ui`) il est nécessaire d'utiliser des middlewares. Pour rendre l'interface accessible via une url particulière, il est nécessaire d'utiliser des middlewares particuliers comme indiqué [ici](https://community.traefik.io/t/fixed-how-to-add-the-missing-trailing-slash-redirectregex-stripprefixregex-no-need-for-replacepathregex/3816/6).
+Ensuite, il suffit de configurer `Traefik` de la même manière que précédemment. Pour pouvoir y accéder depuis une URL particulière (`/ui`) il est nécessaire d'utiliser des middlewares. Pour rendre l'interface accessible via une URL particulière, il est nécessaire d'utiliser des middlewares particuliers comme indiqué [ici](https://community.traefik.io/t/fixed-how-to-add-the-missing-trailing-slash-redirectregex-stripprefixregex-no-need-for-replacepathregex/3816/6).
 
 ``` yaml
 services:
@@ -125,7 +125,7 @@ services:
       - traefik.http.services.portainer.loadbalancer.server.port=9000
       - traefik.http.routers.portainer.rule=Host(`api.labo.ch`) && PathPrefix(`/ui`)
 
-      # Nécessaire pour accéder à l'interface avec l'url /ui
+      # Nécessaire pour accéder à l'interface avec l'URL /ui
       - traefik.http.routers.portainer.middlewares=portainer-prefix-remover
       - traefik.http.middlewares.portainer-prefix-remover.chain.middlewares=strip-prefix-1,strip-prefix-2
       - traefik.http.middlewares.strip-prefix-1.redirectregex.regex=^(https?://[^/]+/[a-z0-9_]+)$$
@@ -138,9 +138,29 @@ services:
 
 Pour vérifier que les différentes fonctionnalités fonctionnent correctement, nous avons affiché les noms d'hôtes des serveurs traitants les différentes requêtes.
 
-Concernant le serveur dynamique, nous avons affiché le nom d'hôte sur la page grâce à l'instruction php `<?php print gethostname(); ?>`. Le fichier `index` a donc dû être renommer vers l'extension `.php`.
+Concernant le serveur statique, nous avons affiché le nom d'hôte sur la page grâce à l'instruction php `<?php print gethostname(); ?>`. Le fichier `index` a donc dû être renommer vers l'extension `.php`.
 
-Le serveur dynamique, quant à lui, se contente de rajouter un paramètre `hostname` à la requête HTTP de réponse. Ce paramètre est ensuite récuperé lorsque la requête AJAX est accomplie grâce à la fonction `getResponseHeader("hostname")` de l'objet de réponse.
+Le serveur dynamique, quant à lui, se contente de rajouter un paramètre `hostname` à la requête HTTP de réponse :
+
+```javascript
+var os = require("os");
+
+app.use(function (req, res, next) {
+	res.header("hostname", os.hostname());
+	next();
+});
+```
+
+Ce paramètre est ensuite récuperé lorsque la requête AJAX est accomplie grâce à la fonction `getResponseHeader("hostname")` de l'objet de réponse : 
+
+```javascript
+$.ajax({
+    // [...]
+}).done((prize, textStatus, jqXHR) => {
+    // [...]
+    text += "\nVous avez été servi par " + jqXHR.getResponseHeader("hostname");
+});
+```
 
 # Utilisation
 
@@ -171,3 +191,24 @@ Pour arrêter l'infrastructure, il suffit de supprimer la stack : `docker stack 
 ![Stacks](../figures/portainer_stacks.png)
 4. Modifier le nombre d'instance des services
 ![Scale](../figures/portainer_stack.png)
+
+# Procédures de tests
+
+- Interface de gestion
+  1. Créer la stack
+  2. Accéder à `api.labo.ch:8080/ui`
+  3. Dupliquer des services `prizes` et `frontend`
+  4. Vérifier que les containers soient lancés et ajoutés à la stack
+
+- Load balancing & Dynamic cluster
+  1. Créer une stack
+  2. Dupliquer des services `prizes` via `api.labo.ch:8080/ui`
+  3. Accéder à `api.labo.ch:8080`
+  4. Vérifier que le nom d'hôte affiché change entre plusieurs requêtes
+
+- Sticky sessions
+  1. Créer une stack
+  2. Dupliquer des services `frontend` via `api.labo.ch:8080/ui`
+  3. Accéder à `api.labo.ch:8080`
+  4. Vérifier que le nom d'hôte affiché ne change pas tant que les cookies ne sont pas supprimés
+  5. Vider les cookies et rafraîchir la page jusqu'à être servi par un autre serveur
