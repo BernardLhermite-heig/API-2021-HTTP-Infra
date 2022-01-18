@@ -2,7 +2,7 @@
 
 L'objectif de cette étape est de modifier le site web statique pour que ce dernier communique avec le serveur dynamique de l'étape 2 pour obtenir des informations et mettent à jour le contenu de sa page.
 
-La communication est effectuée grâce à une requête AJAX à l'aide de JQuery.
+La communication est effectuée grâce à une requête AJAX à l'aide de [jQuery](https://jquery.com/).
 
 # Configuration
 
@@ -11,7 +11,7 @@ La communication est effectuée grâce à une requête AJAX à l'aide de JQuery.
 Pour cette étape, nous avons effectué une copie du dossier utilisé lors de l'étape 1.
 
 L'image est décrite dans le fichier [Dockerfile](../docker-images/apache-ajax/Dockerfile). Pour pouvoir effectuer des tests directement sur le container, nous avons rajouté à l'image l'installation de `vim` grâce à la commande suivante :
-```
+``` Dockerfile
 RUN apt-get update && apt-get install -y vim
 ```
 
@@ -27,25 +27,25 @@ La ligne `setInterval(loadPrize, 5000);` nous permet d'exécuter ladite fonction
 
 Le fichier `index` a été modifié en conséquence pour ajouter un id sur l'élément qui se met à jour périodiquement :
 
-```
+``` html
 <p id="prize" [...]>[...]</p>
 ```
 
-et le fichier javascript précédemment créé est ajouté à la suite des scripts déjà présent dans la page :
+et le fichier javascript précédemment créé est ajouté à la suite des scripts déjà présents dans la page :
 
-```
+``` html
     <script src="assets/js/prize.js"></script>
 ```
 
 # Nécessité du reverse proxy
 
-Pour des raisons de sécurités, les requêtes AJAX doivent par défaut être émise depuis le même domaine pour que ces dernières fonctionnent. Grâce au `reverse proxy`, cette condition est respectée car ce dernier se charge de rediriger les requêtes et change ainsi leur domaine d'origine.
+Pour des raisons de sécurités, les requêtes AJAX doivent par défaut être émises depuis le même domaine pour que ces dernières fonctionnent. Grâce au `reverse proxy`, cette condition est respectée car ce dernier se charge de rediriger les requêtes et change ainsi leur domaine d'origine.
 
 # Utilisation
 
-Il est nécessaire d'avoir construit les images des étapes 2 & 3 pour effectuer cette partie. Le fichier `host` doit avoir été modifié comme décrit dans l'étape 3.
+Il est nécessaire d'avoir construit les images des étapes 2 & 3 pour effectuer cette partie. Le fichier `hosts` doit avoir été modifié comme décrit dans l'étape 3.
 
-Il est également primordial de respecter l'ordre d'exécution décrit ci-dessous pour que l'infrastructure fonctionne correctement.
+Les IPs étant codées en dur, il est également primordial de respecter l'ordre d'exécution décrit ci-dessous pour que l'infrastructure fonctionne correctement.
 
 Marche à suivre :
 
@@ -53,6 +53,4 @@ Marche à suivre :
 2. Exécuter le serveur `docker run -d api/apache-ajax`
 3. Exécuter le serveur de l'étape 2 `docker run -d api/node-express`
 4. Exécuter le serveur de l'étape 3 `docker run -d -p 8080:80 api/apache-reverse-proxy`
-    - `-p` : Le port `80` du serveur sera mappé sur le port local `8080`
-    - `-d` : le container sera lancé en arrière-plan
-5. Accéder à `api.labo.ch:8080` et attendre 5 secondes que la première requête soit effectuée
+5. Accéder à `api.labo.ch:8080` et attendre 5 secondes que la première requête s'effectue
