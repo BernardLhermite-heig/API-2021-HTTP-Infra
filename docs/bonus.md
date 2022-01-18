@@ -180,7 +180,7 @@ Marche à suivre :
 5. Ajouter des services
     - `docker service scale api-infra_prizes=2`
 
-Pour arrêter l'infrastructure, il suffit de supprimer la stack : `docker stack rm api-infra`.
+Pour arrêter l'infrastructure, il suffit de supprimer la stack : `docker stack rm api-infra`
 
 # Gestion via l'interface
 
