@@ -5,11 +5,11 @@ services:
     image: traefik:v2.5.5
     ports:
       - "8080:80" # Page web
-      - "8082:8080" # UI
+      # - "8082:8080" # Dashboard de traefik
     command:
       - --entrypoints.web.address=:80
-      - --api.insecure=true
-      - --api.dashboard=true
+      - --api.insecure=false  # Désactive l'accès au dashboard
+      - --api.dashboard=false # Désactive l'accès au dashboard
       - --providers.docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -31,6 +31,7 @@ services:
       - traefik.http.services.portainer.loadbalancer.server.port=9000
       - traefik.http.routers.portainer.rule=Host(`api.labo.ch`) && PathPrefix(`/ui`)
 
+      # Nécessaire pour accéder à l'interface avec l'url /ui
       - traefik.http.routers.portainer.middlewares=portainer-prefix-remover
       - traefik.http.middlewares.portainer-prefix-remover.chain.middlewares=strip-prefix-1,strip-prefix-2
       - traefik.http.middlewares.strip-prefix-1.redirectregex.regex=^(https?://[^/]+/[a-z0-9_]+)$$
