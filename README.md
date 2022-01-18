@@ -4,6 +4,8 @@
 
 # Description du projet
 
+L'objectif de ce projet est de mettre en place une infrastructure web complète ayant du contenu statique et dynamique, puis de réaliser une application web dynamique. Les différents composants de l'infrastructure web se trouvent dans des images Docker.
+
 # Mise en place de l'infrastructure
 
 Chacune des images utilisée dans ce laboratoire possède un script `build-image.sh` permettant de les construire simplement, à l'exception de la partie bonus qui utilise `docker compose`.

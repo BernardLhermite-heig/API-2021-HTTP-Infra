@@ -24,7 +24,7 @@ Le premier, [000-default.conf](../docker-images/apache-reverse-proxy/conf/sites-
 
 Le second fichier [001-reverse-proxy.conf](../docker-images/apache-reverse-proxy/conf/sites-available/001-reverse-proxy.conf) est utilisé pour définir les deux redirections que nous utilisons.
 
-L'option `ServerName` fait en sorte que seul les requêtes possédant cette valeur comme en-tête HTTP `Host` soient redirigées. Dans notre cas, les requêtes ne possédant pas `api.labo.ch` ne seront pas traitées par cet hôte virtuelle mais par celui défini dans le fichier `000-default.conf`.
+L'option `ServerName` fait en sorte que seul les requêtes possédant cette valeur comme en-tête HTTP `Host` soient redirigées. Dans notre cas, les requêtes ne possédant pas `api.labo.ch` ne seront pas traitées par cet hôte virtuel mais par celui défini dans le fichier `000-default.conf`.
 
 Pour effectuer une redirection, il suffit d'ajouter deux lignes :
 ```
