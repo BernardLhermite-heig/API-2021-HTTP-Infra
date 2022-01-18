@@ -8,7 +8,7 @@ Le but de cette étape est de mettre en place un serveur HTTP statique permettan
 
 L'image liée à cette étape est décrite dans le fichier [Dockerfile](../docker-images/apache-php/Dockerfile) et utilise une image `php` comme base, intégrant ainsi `apache` et l'interpréteur `php`.
 
- Le [Dockerfile](../docker-images/apache-php/Dockerfile) ne comprend qu'une instruction `COPY`, qui servira à copier les fichiers sources sur le container, en plus de l'instruction `FROM`.
+ Le [Dockerfile](../docker-images/apache-php/Dockerfile) ne comprend qu'une instruction `COPY`, qui servira à copier les fichiers sources sur le container.
 
 ## Configuration apache
 
@@ -20,7 +20,7 @@ Ce chemin pourrait être modifié en éditant le fichier de configuration du sit
 
 ## Page web
 
-Notre page web est basée sur [un template](https://onepagelove.com/basic-lite) trouvé en ligne que nous avons modifié à notre gout. Les fichiers sont situés dans le dossier [content](../docker-images/apache-php/content/).
+Notre page web est basée sur [un template](https://onepagelove.com/basic-lite) trouvé en ligne que nous avons modifié à notre goût. Les fichiers sont situés dans le dossier [content](../docker-images/apache-php/content/).
 
 # Utilisation
 

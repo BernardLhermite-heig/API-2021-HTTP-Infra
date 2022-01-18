@@ -4,7 +4,7 @@
 
 # Description du projet
 
-L'objectif de ce projet est de mettre en place une infrastructure web complète ayant du contenu statique et dynamique, puis de réaliser une application web dynamique. Les différents composants de l'infrastructure web se trouvent dans des images Docker.
+L'objectif de ce projet est de mettre en place une infrastructure web complète ayant du contenu statique et dynamique, puis de réaliser une application web dynamique. Les différents composants de l'infrastructure web ont été `dockerisé`.
 
 # Mise en place de l'infrastructure
 
