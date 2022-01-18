@@ -10,50 +10,60 @@ L'objectif de cette étape est de modifier l'infrastructure pour y mettre en pla
 
 Les trois premiers points peuvent facilement être mis en place en utilisant [Traefik](https://doc.traefik.io/traefik/) comme `reverse proxy`. Les deux premiers étant automatiquement géré, la difficulté principale consiste à configurer `Traefik` correctement.
 
-Quant au dernier, [portainer](https://www.portainer.io/) permet de fournir une interface graphique pour gérer l'infrastructure.
+Quant au dernier, [Portainer](https://www.portainer.io/) permet de fournir une interface graphique pour gérer l'infrastructure.
 
-Pour simplifier la mise en place de l'infrastructure, nous allons utiliser `docker compose`(https://docs.docker.com/compose/) pour décrire la configuration.
+Pour simplifier la mise en place de l'infrastructure, nous allons utiliser [docker compose](https://docs.docker.com/compose/) pour décrire la configuration.
 
-## Compose
-
-[La configuration](../docker-images/traefik-reverse-proxy/docker-compose.yml) de l'infrastructure définit quatres services différents, à savoir `reverse-proxy`, `portainer`, `prizes`, `frontend`. Les deux derniers services sont basés sur les images des étapes 3 & 4 avec quelques modifications supplémentaires.
+[La configuration](../docker-images/traefik-reverse-proxy/docker-compose.yml) de l'infrastructure définit quatres services différents, à savoir `reverse-proxy`, `portainer`, `prizes`, `frontend`. Les deux derniers services sont basés sur les images des étapes 3 & 4 avec quelques modifications supplémentaires décrites plus bas.
 
 ## Traefik
 
-La configuration de `Traefik` nécessite au minimum de définir un `entrypoint` qui sera utilisé pour accéder aux services, un `provider` (docker dans notre cas) ainsi qu'un mapping de port pour pouvoir y accéder depuis notre machine locale :
+Pour configurer `Traefik`, il est au minimum nécessaire de définir un `entrypoint` qui sera utilisé pour accéder aux services, un `provider` (docker dans notre cas) ainsi qu'un mapping de port pour pouvoir y accéder depuis notre machine locale :
 
 ``` yaml
-ports:
-    - "8080:80"
-command:
-    - --entrypoints.web.address=:80
-    - --providers.docker
+services:
+  [...]
+  reverse-proxy:
+    [...]
+    ports:
+      - "8080:80"
+    command:
+      - --entrypoints.web.address=:80
+      - --providers.docker
 ```
 
 L'utilisation de `docker` en tant que `provider` nécessite également d'ajouter un volume spécifiant le socket utilisé pour la communication :
 
 ``` yaml
-volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
+services:
+  [...]
+  reverse-proxy:
+    [...]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 ```
 
 ## Server HTTP statique
 
-La mise en place de `Traefik` étant presque automatique, il suffit de spécifier les paramètres voulu dans la catégorie `labels` du fichier.
+La mise en place de `Traefik` étant presque automatique, il suffit de spécifier les paramètres voulus dans la catégorie `labels` du service.
 
 ``` yaml
-labels:
-    # Active Traefik pour ce service
-    - traefik.enable=true
+services:
+  [...]
+  frontend:
+    [...]
+    labels:
+      # Active Traefik pour ce service
+      - traefik.enable=true
 
-    # Intercepte les requêtes destinées à api.labo.ch
-    - traefik.http.routers.frontend.rule=Host(`api.labo.ch`)
+      # Intercepte les requêtes destinées à api.labo.ch
+      - traefik.http.routers.frontend.rule=Host(`api.labo.ch`)
 
-    # Utilise l'entrypoint web (défini plus haut)
-    - traefik.http.routers.frontend.entrypoints=web
+      # Utilise l'entrypoint web (défini plus haut)
+      - traefik.http.routers.frontend.entrypoints=web
 
-    # Utilisation de sticky sessions
-    - traefik.http.services.frontend.loadbalancer.sticky.cookie=true
+      # Utilisation de sticky sessions
+      - traefik.http.services.frontend.loadbalancer.sticky.cookie=true
 ```
 
 ## Server HTTP dynamique
@@ -63,50 +73,65 @@ La configuration de ce service nécessite, en plus d'activer `traefik` et de dé
 Notre serveur dynamique s'attend à recevoir des requêtes sur le port `3000` à l'url racine (`/`). Or, nous allons y accéder depuis une url différente (`/api/prize`). Il faut donc rajouter un `middleware` avant la redirection se chargeant de réécrire l'url correctement.
 
 ``` yaml
-labels:
-    - traefik.enable=true
-    - traefik.http.routers.prizes.entrypoints=web
+services:
+  [...]
+  prizes:
+    [...]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prizes.entrypoints=web
 
-    # Port sur lequel la requête est redirigée
-    - traefik.http.services.prizes.loadbalancer.server.port=3000
+      # Port sur lequel la requête est redirigée
+      - traefik.http.services.prizes.loadbalancer.server.port=3000
 
-    # Spécification du chemin pour accéder au service
-    - traefik.http.routers.prizes.rule=Host(`api.labo.ch`) && PathPrefix(`/api/prize`)
+      # Spécification du chemin pour accéder au service
+      - traefik.http.routers.prizes.rule=Host(`api.labo.ch`) && PathPrefix(`/api/prize`)
 
-    # Middleware pour supprimer le prefix /api/prize
-    - traefik.http.routers.prizes.middlewares=prizes-prefix-remover
-    - traefik.http.middlewares.prizes-prefix-remover.stripprefix.prefixes=/api/prize
-    - traefik.http.middlewares.prizes-prefix-remover.stripprefix.forceSlash=false
+      # Middleware pour supprimer le prefix /api/prize
+      - traefik.http.routers.prizes.middlewares=prizes-prefix-remover
+      - traefik.http.middlewares.prizes-prefix-remover.stripprefix.prefixes=/api/prize
+      - traefik.http.middlewares.prizes-prefix-remover.stripprefix.forceSlash=false
 ```
 
 ## Portainer
 
-L'utilisation de `Portainer` nécessite deux choses. Il faut d'abord configurer correctement le service en y spécifiant la ligne 
+L'utilisation de `Portainer` nécessite deux choses. Il faut d'abord configurer correctement le service en y spécifiant la ligne `command` puis ajouter un `volume` :
+
 ``` yaml
-command: -H unix:///var/run/docker.sock
-```
-comme indiqué dans la documentation officielle ainsi qu'un volume :
-``` yaml
+services:
+  [...]
+  portainer:
+    [...]
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+[...]
 volumes:
-    - portainer_data:/data
+  portainer_data:
 ```
 
 Ensuite, il suffit de configurer `Traefik` de la même manière que précédemment. Pour pouvoir y accéder depuis une url particulière (`/ui`) il est nécessaire d'utiliser des middlewares. Pour rendre l'interface accessible via une url particulière, il est nécessaire d'utiliser des middlewares particuliers comme indiqué [ici](https://community.traefik.io/t/fixed-how-to-add-the-missing-trailing-slash-redirectregex-stripprefixregex-no-need-for-replacepathregex/3816/6).
 
 ``` yaml
-labels:
-    - traefik.enable=true
-    - traefik.http.routers.portainer.entrypoints=web
-    - traefik.http.services.portainer.loadbalancer.server.port=9000
-    - traefik.http.routers.portainer.rule=Host(`api.labo.ch`) && PathPrefix(`/ui`)
+services:
+  [...]
+  portainer:
+    [...]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portainer.entrypoints=web
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+      - traefik.http.routers.portainer.rule=Host(`api.labo.ch`) && PathPrefix(`/ui`)
 
-    # Nécessaire pour accéder à l'interface avec l'url /ui
-    - traefik.http.routers.portainer.middlewares=portainer-prefix-remover
-    - traefik.http.middlewares.portainer-prefix-remover.chain.middlewares=strip-prefix-1,strip-prefix-2
-    - traefik.http.middlewares.strip-prefix-1.redirectregex.regex=^(https?://[^/]+/[a-z0-9_]+)$$
-    - traefik.http.middlewares.strip-prefix-1.redirectregex.replacement=$${1}/
-    - traefik.http.middlewares.strip-prefix-1.redirectregex.permanent=true
-    - traefik.http.middlewares.strip-prefix-2.stripprefixregex.regex=/[a-z0-9_]+
+      # Nécessaire pour accéder à l'interface avec l'url /ui
+      - traefik.http.routers.portainer.middlewares=portainer-prefix-remover
+      - traefik.http.middlewares.portainer-prefix-remover.chain.middlewares=strip-prefix-1,strip-prefix-2
+      - traefik.http.middlewares.strip-prefix-1.redirectregex.regex=^(https?://[^/]+/[a-z0-9_]+)$$
+      - traefik.http.middlewares.strip-prefix-1.redirectregex.replacement=$${1}/
+      - traefik.http.middlewares.strip-prefix-1.redirectregex.permanent=true
+      - traefik.http.middlewares.strip-prefix-2.stripprefixregex.regex=/[a-z0-9_]+
 ```
 
 # Modifications apportées
