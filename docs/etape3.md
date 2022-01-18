@@ -14,7 +14,12 @@ Nous avons décidé d'utiliser la même image que pour l'étape 1 même si nous 
 
 Cette fois-ci, nous allons modifier la configuration d'`apache` et fournir des fichiers de configurations personnalisés. Ces derniers seront copiés dans `/etc/apache2` grâce à la commande `COPY`. Ces fichiers de configurations correspondront aux sites que nous activerons dans `apache`.
 
-Pour pouvoir utiliser le serveur comme un `proxy`, il est nécessaire d'activer les modules `proxy` et `proxy_http` de apache grâce à la commande `RUN a2enmod proxy proxy_http`. Il faut également activer les deux sites correspondant aux configurations fournies grâce à la commande `RUN a2ensite 000-* 001-*`.
+Pour pouvoir utiliser le serveur comme un `proxy`, il est nécessaire d'activer les modules `proxy` et `proxy_http` ainsi que les deux sites correspondant aux configurations préparées :
+
+``` Dockerfile
+RUN a2enmod proxy proxy_http
+RUN a2ensite 000-* 001-*
+```
 
 ## Configuration apache
 
@@ -34,7 +39,7 @@ ProxyPassReverse "/che/min/" "http://ip_de_redirection:port_de_redirection/"
 La première permet de rediriger les requêtes effectués sur `/che/min/` pour les rediriger vers le serveur spécifié.
 La seconde permet d'effectuer la même chose mais dans le sens inverse (serveur -> extérieur).
 
-Les règles étant analysées séquentiellement par le `proxy`, leur ordre est important. Il faut donc commencer par les règles les plus spécifiques. C'est pour cela que la redirection vers le serveur dynamique sur `/api/prize/` vient avant celle du serveur statique `/`.
+Les règles étant analysées séquentiellement par le `proxy`, l'ordre est important. Il faut donc commencer par les règles les plus spécifiques. C'est pour cela que la redirection vers le serveur dynamique sur `/api/prize/` vient avant celle du serveur statique `/`.
 
 ## Problèmes de la configuration
 
@@ -42,7 +47,9 @@ La configuration utilisée est pour le moment fragile. Les adresses IPs des serv
 
 # Utilisation
 
-Il est nécessaire d'avoir construit les images des étapes 1 & 2 pour effectuer cette partie. De plus, lors du lancement des containers liés à ces dernières, il ne faut pas effectuer de port mapping, les rendant ainsi inaccessibles depuis l'extérieur du réseau `docker`. Il faut également [modifier le fichier](https://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/) `hosts` pour pouvoir accéder au serveur `proxy` via son nom d'hôte plutôt que son adresse IP. La valeur ajoutée doit correspondre à celle renseignée dans `ServerName` du fichier `001-reverse-proxy.conf` pour les raisons décrites plus haut.
+Il est nécessaire d'avoir construit les images des étapes 1 & 2 pour effectuer cette partie. De plus, lors du lancement des containers liés à ces dernières, il ne faut pas effectuer de port mapping, les rendant ainsi inaccessibles depuis l'extérieur du réseau `docker`. 
+
+Il faut également [modifier le fichier](https://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/) `hosts` pour pouvoir accéder au serveur `proxy` via son nom d'hôte plutôt que son adresse IP. La valeur ajoutée doit correspondre à celle renseignée dans `ServerName` du fichier `001-reverse-proxy.conf` pour les raisons décrites plus haut.
 
 Dans notre cas, nous avons effectué cette manipulation sous Windows et avons ajouté la ligne suivante :
 
