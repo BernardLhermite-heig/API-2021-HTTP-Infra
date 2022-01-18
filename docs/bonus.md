@@ -119,7 +119,7 @@ Le serveur dynamique, quant à lui, se contente de rajouter un paramètre `hostn
 
 # Utilisation
 
-Comme nous utilisons les images des étapes 3 & 4, il est nécessaire de les construire au préalable grâce à la commande `docker compose build`. Le fichier `host` doit avoir été modifié comme décrit dans l'étape 3.
+Comme nous utilisons les images des étapes 3 & 4, il est nécessaire de les construire au préalable grâce à la commande `docker compose build`. Le fichier `hosts` doit avoir été modifié comme décrit dans l'étape 3.
 
 Pour pouvoir profiter plainement de `Container`, nous allons devoir créer une `stack` avec `docker compose`, ce qui nécessite l'activation de `docker swarm` à l'aide de la commande : `docker swarm init`
 

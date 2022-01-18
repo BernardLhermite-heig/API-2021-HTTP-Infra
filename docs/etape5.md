@@ -9,8 +9,6 @@ L'objectif de cette étape est de modifier le `reverse proxy` de l'étape 3 pour
 Pour pouvoir créer dynamiquement le fichier de configuration du `reverse proxy`, nous avons dû modifier [le script](../docker-images/apache-reverse-proxy-dynamic/apache2-foreground) exécuté au démarrage du container. Nous avons repris [celui de l'image de base](https://github.com/docker-library/php/blob/master/8.1/bullseye/apache/apache2-foreground) et ajouté les instructions nécessaires : 
 
 ```
-echo "Static app: $STATIC_APP"
-echo "Dynamic app: $DYNAMIC_APP"
 php /var/apache2/templates/config-template.php > $APACHE_CONFDIR/sites-available/001-reverse-proxy.conf
 a2ensite 001-reverse-proxy.conf
 ```
@@ -19,15 +17,32 @@ Ces quelques lignes nous permettent de générer le fichier de configuration dep
 
 ## Template php
 
-Le fichier de configuration est basé sur un [template php](../docker-images/apache-reverse-proxy-dynamic/templates/config-template.php) faisant essentiellement la même chose que celui de l'étape 3. Les IPs/ports utilisées ne sont plus écrites en dur dans le code mais sont récupérées grâce à deux variables d'environnement `DYNAMIC_APP` et `STATIC_APP`.
+Le fichier de configuration est basé sur un [template php](../docker-images/apache-reverse-proxy-dynamic/templates/config-template.php) faisant essentiellement la même chose que celui de l'étape 3. Les IPs/ports utilisées ne sont plus écrites en dur dans le code mais sont récupérées grâce à deux variables d'environnement `DYNAMIC_APP` et `STATIC_APP` :
+
+```php
+<?php
+    $dynamic_app = getenv('DYNAMIC_APP');
+    $static_app = getenv('STATIC_APP');
+?>
+
+[...]
+
+    ProxyPass '/api/prize/' 'http://<?php print "$dynamic_app"?>/'
+    ProxyPassReverse '/api/prize/' 'http:/<?php print "$dynamic_app"?>/'
+```
 
 ## Dockerfile
 
 Le [Dockerfile](../docker-images/apache-reverse-proxy-dynamic/Dockerfile) a été modifié pour copier notre script personnalisé `apache2-foreground` ainsi que notre template `config-template.php` dans le container.
 
+```Dockerfile
+COPY apache2-foreground /usr/local/bin/
+COPY templates /var/apache2/templates
+```
+
 # Utilisation
 
-Il est nécessaire d'avoir construit les images des étapes 2 & 4 pour effectuer cette partie. Le fichier `host` doit avoir été modifié comme décrit dans l'étape 3.
+Il est nécessaire d'avoir construit les images des étapes 2 & 4 pour effectuer cette partie. Le fichier `hosts` doit avoir été modifié comme décrit dans l'étape 3.
 
 Marche à suivre :
 
