@@ -25,7 +25,7 @@ La ligne `setInterval(loadPrize, 5000);` nous permet d'exécuter ladite fonction
 
 ## Modification du HTML
 
-Le fichier [index.html](../docker-images/apache-ajax/content/index.html) a été modifier en conséquence pour ajouter un id sur l'élément qui se met à jour périodiquement :
+Le fichier `index` a été modifié en conséquence pour ajouter un id sur l'élément qui se met à jour périodiquement :
 
 ```
 <p id="prize" [...]>[...]</p>
