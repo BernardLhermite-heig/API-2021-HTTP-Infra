@@ -166,7 +166,7 @@ $.ajax({
 
 Comme nous utilisons les images des étapes 3 & 4, il est nécessaire de les construire au préalable grâce à la commande `docker compose build`. Le fichier `hosts` doit avoir été modifié comme décrit dans l'étape 3.
 
-Pour pouvoir profiter plainement de `Container`, nous allons devoir créer une `stack` avec `docker compose`, ce qui nécessite l'activation de `docker swarm` à l'aide de la commande : `docker swarm init`
+Pour pouvoir profiter plainement de `Portainer`, nous allons devoir créer une `stack` avec `docker compose`, ce qui nécessite l'activation de `docker swarm` à l'aide de la commande : `docker swarm init`
 
 A la création de la stack, les différents services seront lancés automatiquement.
 
