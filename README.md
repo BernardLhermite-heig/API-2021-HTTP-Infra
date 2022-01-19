@@ -13,7 +13,7 @@ Chacune des images utilisée dans ce laboratoire possède un script `build-image
 L'infrastructure a été mise en place en configurant les différents éléments dans l'ordre suivant :
 
 1. [Server HTTP statique](./docs/etape1.md)
-2. [Server HTTP dnyamique](./docs/etape2.md)
+2. [Server HTTP dynamique](./docs/etape2.md)
 3. [Reverse proxy (configuration statique)](./docs/etape3.md)
 4. [Requêtes AJAX](./docs/etape4.md)
 5. [Reverse proxy (configuration dynamique)](./docs/etape5.md)
