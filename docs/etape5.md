@@ -15,6 +15,8 @@ a2ensite 001-reverse-proxy.conf
 
 Ces quelques lignes nous permettent de générer le fichier de configuration depuis un template `php` puis d'activer de l'activer.
 
+Il est important de noter que la fin de ligne du script doit être en format [Unix (LR)](https://stackoverflow.com/a/51298412). Le format Windows ne fonctionne simplement pas.
+
 ## Template php
 
 Le fichier de configuration est basé sur un [template php](../docker-images/apache-reverse-proxy-dynamic/templates/config-template.php) faisant essentiellement la même chose que celui de l'étape 3. Les IPs/ports utilisées ne sont plus écrites en dur dans le code mais sont récupérées grâce à deux variables d'environnement `DYNAMIC_APP` et `STATIC_APP` :
